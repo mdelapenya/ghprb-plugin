@@ -3,21 +3,22 @@ package org.jenkinsci.plugins.ghprb;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Cause;
-import hudson.model.Fingerprint.RangeSet;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.model.queue.QueueTaskFuture;
 import hudson.plugins.git.util.BuildData;
+
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 /**
  * @author janinko
@@ -120,29 +121,22 @@ public class GhprbBuilds {
 
             String buildUrl = build.getUrl();
 
-            Map<AbstractProject,RangeSet> downstreamBuildsMap =
-                build.getDownstreamBuilds();
+            List<AbstractProject> jobs =
+                Jenkins.getInstance().getDependencyGraph().getDownstream(
+                    build.getProject());
 
-            if (downstreamBuildsMap.size() > 0) {
-                Set<Map.Entry<AbstractProject,RangeSet>> entrySet =
-                    downstreamBuildsMap.entrySet();
-
+            for (Job job : jobs) {
                 StringBuilder sb = new StringBuilder();
 
-                for (Map.Entry<AbstractProject,RangeSet> downstreamBuildEntry : entrySet) {
-                    AbstractProject key = downstreamBuildEntry.getKey();
-                    RangeSet value = downstreamBuildEntry.getValue();
+                List<Run> builds = job.getBuilds();
 
-                    List<Job> buildsList = key.getBuilds(value);
-
-                    for (Job job : buildsList) {
-                        sb.append("/t");
-                        sb.append(job.getBuildStatusUrl());
-                        sb.append("/n");
-                    }
+                for (Run b : builds) {
+                    String url = b.getUrl();
+                    sb.append("/t");
+                    sb.append(job.getBuildStatusUrl());
+                    sb.append("/n");
                 }
-
-                buildUrl = sb.toString();
+                System.out.println(sb.toString());
             }
 
             msg.append(publishedURL).append(buildUrl);
