@@ -1,7 +1,10 @@
 package org.jenkinsci.plugins.ghprb;
 
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.Cause;
+import hudson.model.Fingerprint.RangeSet;
+import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.queue.QueueTaskFuture;
 import hudson.plugins.git.util.BuildData;
@@ -11,6 +14,8 @@ import org.kohsuke.github.GHPullRequest;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,7 +117,35 @@ public class GhprbBuilds {
                 msg.append(GhprbTrigger.getDscp().getMsgFailure());
             }
             msg.append("\nRefer to this link for build results: ");
-            msg.append(publishedURL).append(build.getUrl());
+
+            String buildUrl = build.getUrl();
+
+            Map<AbstractProject,RangeSet> downstreamBuildsMap =
+                build.getDownstreamBuilds();
+
+            if (downstreamBuildsMap.size() > 0) {
+                Set<Map.Entry<AbstractProject,RangeSet>> entrySet =
+                    downstreamBuildsMap.entrySet();
+
+                StringBuilder sb = new StringBuilder();
+
+                for (Map.Entry<AbstractProject,RangeSet> downstreamBuildEntry : entrySet) {
+                    AbstractProject key = downstreamBuildEntry.getKey();
+                    RangeSet value = downstreamBuildEntry.getValue();
+
+                    List<Job> buildsList = key.getBuilds(value);
+
+                    for (Job job : buildsList) {
+                        sb.append("/t");
+                        sb.append(job.getBuildStatusUrl());
+                        sb.append("/n");
+                    }
+                }
+
+                buildUrl = sb.toString();
+            }
+
+            msg.append(publishedURL).append(buildUrl);
 
             int numLines = GhprbTrigger.getDscp().getlogExcerptLines();
             if (state != GHCommitState.SUCCESS && numLines > 0) {
