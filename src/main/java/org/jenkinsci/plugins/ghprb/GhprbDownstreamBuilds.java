@@ -14,17 +14,18 @@
 
 package org.jenkinsci.plugins.ghprb;
 
-import hudson.Extension;
-import hudson.ExtensionList;
-import hudson.model.TransientBuildActionFactory;
+import java.util.List;
 
-import org.jenkinsci.plugins.buildgraphview.BuildGraphActionFactory;
+import hudson.Extension;
+import hudson.model.Run;
+
+import org.jenkinsci.plugins.buildgraphview.UpstreamCauseDonwStreamRunDeclarer;
 
 @Extension
-public class GhprbDownstreamBuilds extends BuildGraphActionFactory {
+public class GhprbDownstreamBuilds extends UpstreamCauseDonwStreamRunDeclarer {
 
-	public static ExtensionList<TransientBuildActionFactory> all() {
-		return BuildGraphActionFactory.all();
-	}
-
+	 @Override
+	 public List<Run> getDownStream(Run r) {
+		return super.getDownStream(r);
+	 }
 }
