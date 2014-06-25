@@ -10,6 +10,7 @@ import hudson.util.LogTaskListener;
 
 import org.apache.commons.io.FileUtils;
 
+import org.jgrapht.DirectedGraph;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
@@ -19,10 +20,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.cloudbees.plugins.flow.FlowRun;
+import com.cloudbees.plugins.flow.FlowRun.JobEdge;
 
 /**
  * @author janinko
@@ -192,6 +198,27 @@ public class GhprbBuilds {
     }
 
     private String calculateBuildUrl(AbstractBuild build) {
+        if (build instanceof FlowRun) {
+            FlowRun flowRun = (FlowRun)build;
+            DirectedGraph directedGraph = flowRun.getJobsGraph();
+
+            Set<JobEdge> edgeSet = directedGraph.edgeSet();
+
+            Iterator<JobEdge> iterator = edgeSet.iterator();
+
+            StringBuilder sb = new StringBuilder();
+
+            while (iterator.hasNext()) {
+                JobEdge jobEdge = iterator.next();
+
+                sb.append("\n");
+                sb.append("\t");
+                sb.append(jobEdge.getTarget().getBuildUrl());
+            }
+
+            return sb.toString();
+        }
+
         String publishedURL = GhprbTrigger.getDscp().getPublishedURL();
 
         return publishedURL + "/" + build.getUrl();
