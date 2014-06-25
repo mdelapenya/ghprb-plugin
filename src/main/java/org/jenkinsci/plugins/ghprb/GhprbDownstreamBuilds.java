@@ -24,7 +24,7 @@ import org.jenkinsci.plugins.buildgraphview.BuildGraphActionFactory;
 public class GhprbDownstreamBuilds extends BuildGraphActionFactory {
 
 	public static ExtensionList<TransientBuildActionFactory> all() {
-		return TransientBuildActionFactory.all();
+		return BuildGraphActionFactory.all();
 	}
 
 }
