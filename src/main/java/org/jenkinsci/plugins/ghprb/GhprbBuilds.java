@@ -1,7 +1,10 @@
 package org.jenkinsci.plugins.ghprb;
 
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.Cause;
+import hudson.model.Job;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.model.queue.QueueTaskFuture;
 import hudson.plugins.git.util.BuildData;
@@ -13,6 +16,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 /**
  * @author janinko
@@ -112,7 +117,28 @@ public class GhprbBuilds {
                 msg.append(GhprbTrigger.getDscp().getMsgFailure());
             }
             msg.append("\nRefer to this link for build results: ");
-            msg.append(publishedURL).append(build.getUrl());
+
+            String buildUrl = build.getUrl();
+
+            List<AbstractProject> jobs =
+                Jenkins.getInstance().getDependencyGraph().getDownstream(
+                    build.getProject());
+
+            for (Job job : jobs) {
+                StringBuilder sb = new StringBuilder();
+
+                List<Run> builds = job.getBuilds();
+
+                for (Run b : builds) {
+                    String url = b.getUrl();
+                    sb.append("/t");
+                    sb.append(job.getBuildStatusUrl());
+                    sb.append("/n");
+                }
+                System.out.println(sb.toString());
+            }
+
+            msg.append(publishedURL).append(buildUrl);
 
             int numLines = GhprbTrigger.getDscp().getlogExcerptLines();
             if (state != GHCommitState.SUCCESS && numLines > 0) {
