@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.ghprb.downstreambuilds;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.jenkinsci.plugins.ghprb.GhprbBaseBuildUrlManager;
 import org.jgrapht.DirectedGraph;
 
 import com.cloudbees.plugins.flow.FlowRun;
@@ -13,7 +14,7 @@ import hudson.model.AbstractBuild;
 /**
  * @author mdelapenya (Manuel de la Peña)
  */
-public class DownstreamBuildFlowManager extends BaseDownstreamBuildManager {
+public class DownstreamBuildFlowManager extends GhprbBaseBuildUrlManager {
 
 	public DownstreamBuildFlowManager(AbstractBuild build) {
 		super(build);
