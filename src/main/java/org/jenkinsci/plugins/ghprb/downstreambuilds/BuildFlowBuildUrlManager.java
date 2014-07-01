@@ -14,9 +14,9 @@ import hudson.model.AbstractBuild;
 /**
  * @author mdelapenya (Manuel de la Peña)
  */
-public class DownstreamBuildFlowManager extends GhprbBaseBuildUrlManager {
+public class BuildFlowBuildUrlManager extends GhprbBaseBuildUrlManager {
 
-	public DownstreamBuildFlowManager(AbstractBuild build) {
+	public BuildFlowBuildUrlManager(AbstractBuild build) {
 		super(build);
 	}
 
