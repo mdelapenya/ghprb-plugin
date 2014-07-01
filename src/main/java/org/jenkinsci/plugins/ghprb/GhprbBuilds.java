@@ -10,7 +10,6 @@ import hudson.util.LogTaskListener;
 
 import org.apache.commons.io.FileUtils;
 
-import org.jenkinsci.plugins.ghprb.downstreambuilds.DownstreamBuildManagerFactoryUtil;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
@@ -194,7 +193,7 @@ public class GhprbBuilds {
 
     private String calculateBuildUrl(AbstractBuild build) {
         GhprbBuildUrlManager buildManager =
-            DownstreamBuildManagerFactoryUtil.getBuildManager(build);
+            GhprbBuildUrlManagerFactoryUtil.getBuildManager(build);
 
         return buildManager.calculateBuildUrl();
     }
