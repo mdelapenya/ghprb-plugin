@@ -1,7 +1,6 @@
-package org.jenkinsci.plugins.ghprb.downstreambuilds;
+package org.jenkinsci.plugins.ghprb;
 
-import org.jenkinsci.plugins.ghprb.GhprbDefaultBuildManager;
-import org.jenkinsci.plugins.ghprb.GhprbBuildUrlManager;
+import org.jenkinsci.plugins.ghprb.downstreambuilds.DownstreamBuildFlowManager;
 
 import com.cloudbees.plugins.flow.FlowRun;
 
@@ -10,7 +9,7 @@ import hudson.model.AbstractBuild;
 /**
  * @author mdelapenya (Manuel de la Peña)
  */
-public class DownstreamBuildManagerFactoryUtil {
+public class GhprbBuildUrlManagerFactoryUtil {
 
 	/**
 	 * Gets an instance of a library that is able to calculate build urls
