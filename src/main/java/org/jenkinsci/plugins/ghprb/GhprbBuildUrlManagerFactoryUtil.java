@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.ghprb;
 
-import org.jenkinsci.plugins.ghprb.downstreambuilds.DownstreamBuildFlowManager;
+import org.jenkinsci.plugins.ghprb.downstreambuilds.BuildFlowBuildUrlManager;
 
 import com.cloudbees.plugins.flow.FlowRun;
 
@@ -24,7 +24,7 @@ public class GhprbBuildUrlManagerFactoryUtil {
 	public static GhprbBuildUrlManager getBuildManager(AbstractBuild build) {
 		try {
 			if (build instanceof FlowRun) {
-				return new DownstreamBuildFlowManager(build);
+				return new BuildFlowBuildUrlManager(build);
 			}
 		}
 		catch (NoClassDefFoundError ncdfe) {
