@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.ghprb.downstreambuilds;
 
 import org.jenkinsci.plugins.ghprb.GhprbDefaultBuildManager;
+import org.jenkinsci.plugins.ghprb.GhprbBuildUrlManager;
 
 import com.cloudbees.plugins.flow.FlowRun;
 
@@ -21,7 +22,7 @@ public class DownstreamBuildManagerFactoryUtil {
 	 * @param build
 	 * @return
 	 */
-	public static IDownstreamBuildManager getBuildManager(AbstractBuild build) {
+	public static GhprbBuildUrlManager getBuildManager(AbstractBuild build) {
 		try {
 			if (build instanceof FlowRun) {
 				return new DownstreamBuildFlowManager(build);
