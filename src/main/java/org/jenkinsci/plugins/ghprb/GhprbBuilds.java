@@ -5,6 +5,7 @@ import hudson.model.Cause;
 import hudson.model.Result;
 import hudson.model.queue.QueueTaskFuture;
 import hudson.plugins.git.util.BuildData;
+
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
@@ -112,7 +113,8 @@ public class GhprbBuilds {
                 msg.append(GhprbTrigger.getDscp().getMsgFailure());
             }
             msg.append("\nRefer to this link for build results: ");
-            msg.append(publishedURL).append(build.getUrl());
+
+            msg.append(calculateBuildUrl(build));
 
             int numLines = GhprbTrigger.getDscp().getlogExcerptLines();
             if (state != GHCommitState.SUCCESS && numLines > 0) {
@@ -147,5 +149,12 @@ public class GhprbBuilds {
                 logger.log(Level.SEVERE, "Can't close pull request", ex);
             }
         }
+    }
+
+    private String calculateBuildUrl(AbstractBuild build) {
+        GhprbBuildUrlManager buildManager =
+            GhprbBuildUrlManagerFactoryUtil.getBuildManager(build);
+
+        return buildManager.calculateBuildUrl();
     }
 }
