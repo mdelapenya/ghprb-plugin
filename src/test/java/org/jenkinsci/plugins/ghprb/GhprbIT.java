@@ -121,7 +121,7 @@ public class GhprbIT {
         // GIVEN
         FreeStyleProject project = jenkinsRule.createFreeStyleProject("PRJ");
         GhprbTrigger trigger = new GhprbTrigger(
-                "user", "user", "", "*/1 * * * *", "retest this please", false, false, false, false, null, null
+                "user", "user", "", "*/1 * * * *", "retest this please", false, false, false, false, false, null, null
         );
         given(commitPointer.getSha()).willReturn("sha");
         JSONObject jsonObject = provideConfiguration();
@@ -155,7 +155,7 @@ public class GhprbIT {
         // GIVEN
         FreeStyleProject project = jenkinsRule.createFreeStyleProject("PRJ");
         GhprbTrigger trigger = new GhprbTrigger(
-                "user", "user", "", "*/1 * * * *", "retest this please", false, false, false, false, null, null
+                "user", "user", "", "*/1 * * * *", "retest this please", false, false, false, false, false, null, null
         );
         given(commitPointer.getSha()).willReturn("sha").willReturn("sha").willReturn("newOne").willReturn("newOne");
         given(ghPullRequest.getComments()).willReturn(Lists.<GHIssueComment>newArrayList());
@@ -183,7 +183,7 @@ public class GhprbIT {
         // GIVEN
         FreeStyleProject project = jenkinsRule.createFreeStyleProject("PRJ");
         GhprbTrigger trigger = new GhprbTrigger(
-                "user", "user", "", "*/1 * * * *", "retest this please", false, false, false, false, null, null
+                "user", "user", "", "*/1 * * * *", "retest this please", false, false, false, false, false, null, null
         );
 
         given(commitPointer.getSha()).willReturn("sha");
@@ -247,6 +247,7 @@ public class GhprbIT {
         jsonObject.put("unstableAs", "");
         jsonObject.put("testMode", "true");
         jsonObject.put("autoCloseFailedPullRequests", "false");
+        jsonObject.put("displayBuildErrorsOnDownstreamBuilds", "false");
         jsonObject.put("msgSuccess", "Success");
         jsonObject.put("msgFailure", "Failure");
 
