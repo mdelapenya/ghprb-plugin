@@ -53,6 +53,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
 	private final String commentFilePath;
     private String whitelist;
     private Boolean autoCloseFailedPullRequests;
+    private Boolean displayBuildErrorsOnDownstreamBuilds;
     private List<GhprbBranch> whiteListTargetBranches;
     private transient Ghprb helper;
     private String project;
@@ -67,6 +68,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
                         Boolean useGitHubHooks,
                         Boolean permitAll,
                         Boolean autoCloseFailedPullRequests,
+                        Boolean displayBuildErrorsOnDownstreamBuilds,
                         String commentFilePath,
                         List<GhprbBranch> whiteListTargetBranches) throws ANTLRException {
         super(cron);
@@ -79,6 +81,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         this.useGitHubHooks = useGitHubHooks;
         this.permitAll = permitAll;
         this.autoCloseFailedPullRequests = autoCloseFailedPullRequests;
+        this.displayBuildErrorsOnDownstreamBuilds = displayBuildErrorsOnDownstreamBuilds;
         this.whiteListTargetBranches = whiteListTargetBranches;
         this.commentFilePath = commentFilePath;
     }
@@ -285,6 +288,15 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         }
     }
 
+    public Boolean isDisplayBuildErrorsOnDownstreamBuilds() {
+        if (displayBuildErrorsOnDownstreamBuilds == null) {
+            Boolean displayErrors = getDescriptor().getDisplayBuildErrorsOnDownstreamBuilds();
+            return (displayErrors != null && displayErrors);
+        } else {
+            return displayBuildErrorsOnDownstreamBuilds;
+        }
+    }
+
     public List<GhprbBranch> getWhiteListTargetBranches() {
         if (whiteListTargetBranches == null) {
             return new ArrayList<GhprbBranch>();
@@ -344,6 +356,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
         private String msgFailure = "Test FAILed.";
         private List<GhprbBranch> whiteListTargetBranches;
         private Boolean autoCloseFailedPullRequests = false;
+        private Boolean displayBuildErrorsOnDownstreamBuilds = false;
         
         
         
@@ -392,6 +405,7 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
             logExcerptLines = formData.getInt("logExcerptLines");
             unstableAs = formData.getString("unstableAs");
             autoCloseFailedPullRequests = formData.getBoolean("autoCloseFailedPullRequests");
+            displayBuildErrorsOnDownstreamBuilds = formData.getBoolean("displayBuildErrorsOnDownstreamBuilds");
             msgSuccess = formData.getString("msgSuccess");
             msgFailure = formData.getString("msgFailure");
            
@@ -472,6 +486,10 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
 
         public Boolean getAutoCloseFailedPullRequests() {
             return autoCloseFailedPullRequests;
+        }
+
+        public Boolean getDisplayBuildErrorsOnDownstreamBuilds() {
+            return displayBuildErrorsOnDownstreamBuilds;
         }
 
         public String getServerAPIUrl() {
