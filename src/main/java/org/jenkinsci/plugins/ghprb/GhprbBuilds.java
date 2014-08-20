@@ -198,6 +198,7 @@ public class GhprbBuilds {
             return buildManager.calculateBuildUrl();
         }
 
-        return buildManager.getTestResults();
+        return buildManager.getTestResults(
+            trigger.isDisplayBuildErrorsOnDownstreamBuilds());
     }
 }
