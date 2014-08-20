@@ -5,6 +5,7 @@ import hudson.plugins.git.BranchSpec;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.UserRemoteConfig;
 import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Fail.fail;
 import static org.kohsuke.github.GHIssueState.OPEN;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyString;
@@ -19,6 +20,7 @@ import net.sf.json.JSONObject;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.kohsuke.github.GHCommitPointer;
@@ -103,6 +105,21 @@ public class GhprbIT {
         } else {
             given(prToMock.getUpdatedAt()).willReturn(updatedDate[0].toDate());
         }
+    }
+
+    @Test
+    public void shouldFailOnNewPR() throws Exception {
+        fail("Failing for testing purpose");
+    }
+
+    @Test
+    public void shouldFailOnNewPR2() throws Exception {
+        fail("Failing for testing purpose");
+    }
+
+    @Test
+    public void shouldFailOnNewPR3() throws Exception {
+        fail("Failing for testing purpose");
     }
 
     // Utility
