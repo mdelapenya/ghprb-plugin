@@ -489,14 +489,14 @@ public class GhprbTrigger extends Trigger<AbstractProject<?, ?>> {
 
         public String getMsgSuccess() {
             if (msgSuccess == null) {
-                return "Test PASSed.";
+                return "Test PASSED.";
             }
             return msgSuccess;
         }
 
         public String getMsgFailure() {
             if (msgFailure == null) {
-                return "Test FAILed.";
+                return "Test FAILED.";
             }
             return msgFailure;
         }
