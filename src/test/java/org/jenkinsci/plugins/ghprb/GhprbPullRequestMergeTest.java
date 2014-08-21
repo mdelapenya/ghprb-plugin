@@ -91,7 +91,7 @@ public class GhprbPullRequestMergeTest {
 	
 	@Before 
 	public void beforeTest() throws Exception {
-		GhprbTrigger trigger = spy(new GhprbTrigger(adminList, "user", "", "*/1 * * * *", triggerPhrase, false, false, false, false, null, null));
+		GhprbTrigger trigger = spy(new GhprbTrigger(adminList, "user", "", "*/1 * * * *", triggerPhrase, false, false, false, false, false, null, null));
 
 		ConcurrentMap<Integer, GhprbPullRequest> pulls = new ConcurrentHashMap<Integer, GhprbPullRequest>(1);
 		pulls.put(pullId, pullRequest);
