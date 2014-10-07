@@ -21,6 +21,7 @@ import org.kohsuke.github.GHUser;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -144,6 +145,9 @@ public class GhprbBuilds {
                 msg.append(GhprbTrigger.getDscp().getMsgFailure(build));
             }
 
+            msg.append("\nBuild Time: ");
+            msg.append(generateBuildDurationMessage(build) + "\n");
+
             msg.append("\nRefer to this link for build results (access rights to CI server needed): \n");
             msg.append(generateCustomizedMessage(build));
 
@@ -209,6 +213,38 @@ public class GhprbBuilds {
                 }
             }
         }
+    }
+
+    private String generateBuildDurationMessage(AbstractBuild build) {
+        TimeUnit tuMilliseconds = TimeUnit.MILLISECONDS;
+        TimeUnit tuMinutes = TimeUnit.MINUTES;
+
+        long millisec = build.getDuration();
+        long minutes =tuMilliseconds.toMinutes(millisec);
+        millisec -= tuMinutes.toMillis(minutes);
+        long seconds = tuMilliseconds.toSeconds(millisec);
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(minutes);
+
+        if (minutes <= 1) {
+            sb.append(" min ");
+        }
+        else {
+            sb.append(" mins ");
+        }
+
+        sb.append(seconds);
+
+        if (seconds <= 1) {
+            sb.append(" sec");
+        }
+        else {
+            sb.append(" secs");
+        }
+
+        return sb.toString();
     }
 
     private String generateCustomizedMessage(AbstractBuild build) {
