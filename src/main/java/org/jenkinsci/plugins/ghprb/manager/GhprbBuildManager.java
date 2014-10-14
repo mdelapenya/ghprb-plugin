@@ -22,6 +22,13 @@ public interface GhprbBuildManager {
 	Iterator downstreamProjects();
 
 	/**
+	 * Returns the formatted build time of a build
+	 * 
+	 * @return the build time as string
+	 */
+	String getBuildTimeMessage();
+
+	/**
 	 * Print tests result of a build
 	 *
 	 * @return the tests result
