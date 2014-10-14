@@ -224,7 +224,8 @@ public class GhprbBuilds {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\nBuild Time: ");
-        sb.append(buildManager.getBuildTimeMessage() + "\n");
+        sb.append(buildManager.getBuildTimeMessage());
+        sb.append("\n");
 
         sb.append(buildManager.calculateBuildUrl());
 
