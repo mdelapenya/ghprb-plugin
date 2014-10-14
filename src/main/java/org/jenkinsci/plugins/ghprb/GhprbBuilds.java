@@ -145,9 +145,6 @@ public class GhprbBuilds {
                 msg.append(GhprbTrigger.getDscp().getMsgFailure(build));
             }
 
-            msg.append("\nBuild Time: ");
-            msg.append(generateBuildDurationMessage(build.getDuration()) + "\n");
-
             msg.append("\nRefer to this link for build results (access rights to CI server needed): \n");
             msg.append(generateCustomizedMessage(build));
 
@@ -258,6 +255,9 @@ public class GhprbBuilds {
             GhprbBuildManagerFactoryUtil.getBuildManager(build, jobConfiguration);
 
         StringBuilder sb = new StringBuilder();
+
+        sb.append("\nBuild Time: ");
+        sb.append(generateBuildDurationMessage(build.getDuration()) + "\n");
 
         sb.append(buildManager.calculateBuildUrl());
 
