@@ -22,6 +22,7 @@ import hudson.tasks.test.AggregatedTestResultAction.ChildReport;
 import org.jenkinsci.plugins.ghprb.GhprbTrigger;
 import org.jenkinsci.plugins.ghprb.manager.configuration.JobConfiguration;
 import org.jenkinsci.plugins.ghprb.manager.GhprbBuildManager;
+import org.jenkinsci.plugins.ghprb.manager.GhprbBuildTimeFormatter;
 
 /**
  * @author mdelapenya (Manuel de la Peña)
@@ -79,38 +80,10 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	 * @return the build time as string
 	 */
 	public String getBuildTimeMessage() {
-		TimeUnit tuMilliseconds = TimeUnit.MILLISECONDS;
-		TimeUnit tuMinutes = TimeUnit.MINUTES;
+		GhprbBuildTimeFormatter buildTimeFormatter =
+			new GhprbBuildTimeFormatter(build.getDuration());
 
-		long millisec = build.getDuration();
-
-		long minutes = tuMilliseconds.toMinutes(millisec);
-
-		millisec -= tuMinutes.toMillis(minutes);
-
-		long seconds = tuMilliseconds.toSeconds(millisec);
-
-		StringBuilder sb = new StringBuilder();
-
-		sb.append(minutes);
-
-		if (minutes <= 1) {
-			sb.append(" min ");
-		}
-		else {
-			sb.append(" mins ");
-		}
-
-		sb.append(seconds);
-
-		if (seconds <= 1) {
-			sb.append(" sec");
-		}
-		else {
-			sb.append(" secs");
-		}
-
-		return sb.toString();
+		return buildTimeFormatter.toString();
 	}
 
 	public JobConfiguration getJobConfiguration() {
