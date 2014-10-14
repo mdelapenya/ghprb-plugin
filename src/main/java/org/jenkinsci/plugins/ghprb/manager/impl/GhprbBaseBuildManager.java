@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,6 +71,46 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 		downstreamList.add(build);
 
 		return downstreamList.iterator();
+	}
+
+	/**
+	 * Returns the formatted build time of a build
+	 * 
+	 * @return the build time as string
+	 */
+	public String getBuildTimeMessage() {
+		TimeUnit tuMilliseconds = TimeUnit.MILLISECONDS;
+		TimeUnit tuMinutes = TimeUnit.MINUTES;
+
+		long millisec = build.getDuration();
+
+		long minutes = tuMilliseconds.toMinutes(millisec);
+
+		millisec -= tuMinutes.toMillis(minutes);
+
+		long seconds = tuMilliseconds.toSeconds(millisec);
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(minutes);
+
+		if (minutes <= 1) {
+			sb.append(" min ");
+		}
+		else {
+			sb.append(" mins ");
+		}
+
+		sb.append(seconds);
+
+		if (seconds <= 1) {
+			sb.append(" sec");
+		}
+		else {
+			sb.append(" secs");
+		}
+
+		return sb.toString();
 	}
 
 	public JobConfiguration getJobConfiguration() {

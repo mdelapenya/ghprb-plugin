@@ -211,39 +211,6 @@ public class GhprbBuilds {
         }
     }
 
-    private String generateBuildDurationMessage(long millisec) {
-        TimeUnit tuMilliseconds = TimeUnit.MILLISECONDS;
-        TimeUnit tuMinutes = TimeUnit.MINUTES;
-
-        long minutes = tuMilliseconds.toMinutes(millisec);
-
-        millisec -= tuMinutes.toMillis(minutes);
-
-        long seconds = tuMilliseconds.toSeconds(millisec);
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(minutes);
-
-        if (minutes <= 1) {
-            sb.append(" min ");
-        }
-        else {
-            sb.append(" mins ");
-        }
-
-        sb.append(seconds);
-
-        if (seconds <= 1) {
-            sb.append(" sec");
-        }
-        else {
-            sb.append(" secs");
-        }
-
-        return sb.toString();
-    }
-
     private String generateCustomizedMessage(AbstractBuild build) {
         JobConfiguration jobConfiguration =
             JobConfiguration.builder()
@@ -256,7 +223,7 @@ public class GhprbBuilds {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\nBuild Time: ");
-        sb.append(generateBuildDurationMessage(build.getDuration()) + "\n");
+        sb.append(buildManager.getBuildTimeMessage() + "\n");
 
         sb.append(buildManager.calculateBuildUrl());
 
