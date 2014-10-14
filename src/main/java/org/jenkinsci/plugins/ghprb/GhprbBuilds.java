@@ -146,7 +146,7 @@ public class GhprbBuilds {
             }
 
             msg.append("\nBuild Time: ");
-            msg.append(generateBuildDurationMessage(build) + "\n");
+            msg.append(generateBuildDurationMessage(build.getDuration()) + "\n");
 
             msg.append("\nRefer to this link for build results (access rights to CI server needed): \n");
             msg.append(generateCustomizedMessage(build));
@@ -214,11 +214,9 @@ public class GhprbBuilds {
         }
     }
 
-    private String generateBuildDurationMessage(AbstractBuild build) {
+    private String generateBuildDurationMessage(long millisec) {
         TimeUnit tuMilliseconds = TimeUnit.MILLISECONDS;
         TimeUnit tuMinutes = TimeUnit.MINUTES;
-
-        long millisec = build.getDuration();
 
         long minutes = tuMilliseconds.toMinutes(millisec);
 
