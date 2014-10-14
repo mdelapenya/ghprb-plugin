@@ -220,8 +220,11 @@ public class GhprbBuilds {
         TimeUnit tuMinutes = TimeUnit.MINUTES;
 
         long millisec = build.getDuration();
-        long minutes =tuMilliseconds.toMinutes(millisec);
+
+        long minutes = tuMilliseconds.toMinutes(millisec);
+
         millisec -= tuMinutes.toMillis(minutes);
+
         long seconds = tuMilliseconds.toSeconds(millisec);
 
         StringBuilder sb = new StringBuilder();
