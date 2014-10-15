@@ -136,8 +136,11 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 		AggregatedTestResultAction aggTestResultAction =
 			build.getAggregatedTestResultAction();
 
+		String projectName = build.getProject().getDisplayName();
+
 		if (aggTestResultAction == null) {
-			sb.append(printTestResults(build.getProject(), testResultAction));
+			sb.append(
+				printTestResults(projectName, testResultAction));
 
 			return sb.toString();
 		}
@@ -147,11 +150,8 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 		for (ChildReport report : childReports) {
 			TestResult result = (TestResult)report.result;
 
-			AbstractProject project =
-				(AbstractProject)report.child.getProject();
-
 			sb.append(
-				printTestResults(project, result.getTestResultAction()));
+				printTestResults(projectName, result.getTestResultAction()));
 		}
 
 		return sb.toString();
@@ -189,7 +189,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	}
 
 	protected String printTestResults(
-		AbstractProject project, AbstractTestResultAction testResultAction) {
+		String projectName, AbstractTestResultAction testResultAction) {
 
 		StringBuilder sb = new StringBuilder();
 
@@ -201,12 +201,12 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 
 		sb.append("<h3>");
 		sb.append("<a name='");
-		sb.append(project.getName());
+		sb.append(projectName);
 		sb.append("' />");
 		sb.append("<a href='");
 		sb.append(baseUrl);
 		sb.append("'>");
-		sb.append(project.getName());
+		sb.append(projectName);
 		sb.append("</a>");
 		sb.append(": ");
 		sb.append("<span class='status-failure'>");
