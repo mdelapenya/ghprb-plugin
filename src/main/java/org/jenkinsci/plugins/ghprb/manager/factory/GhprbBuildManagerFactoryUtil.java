@@ -42,7 +42,7 @@ public class GhprbBuildManagerFactoryUtil {
 		catch (NoClassDefFoundError ncdfe) {
 		}
 
-		return new GhprbDefaultBuildManager(build);
+		return new GhprbDefaultBuildManager(build, jobConfiguration);
 	}
 
 }
