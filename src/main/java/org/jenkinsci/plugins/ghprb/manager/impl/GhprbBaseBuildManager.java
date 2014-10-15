@@ -30,12 +30,12 @@ import org.jenkinsci.plugins.ghprb.manager.GhprbBuildTimeFormatter;
 public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 
 	public GhprbBaseBuildManager(AbstractBuild build) {
-		this.build = build;
+		this.rootBuild = build;
 		this.jobConfiguration = buildDefaultConfiguration();
 	}
 
 	public GhprbBaseBuildManager(AbstractBuild build, JobConfiguration jobConfiguration) {
-		this.build = build;
+		this.rootBuild = build;
 		this.jobConfiguration = jobConfiguration;
 	}
 
@@ -54,7 +54,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	public String calculateBuildUrl() {
 		String publishedURL = GhprbTrigger.getDscp().getPublishedURL();
 
-		return publishedURL + "/" + build.getUrl();
+		return publishedURL + "/" + rootBuild.getUrl();
 	}
 
 	/**
@@ -69,7 +69,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	public Iterator downstreamProjects() {
 		List downstreamList = new ArrayList();
 
-		downstreamList.add(build);
+		downstreamList.add(rootBuild);
 
 		return downstreamList.iterator();
 	}
@@ -81,7 +81,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	 */
 	public String getBuildTimeMessage() {
 		GhprbBuildTimeFormatter buildTimeFormatter =
-			new GhprbBuildTimeFormatter(build.getDuration());
+			new GhprbBuildTimeFormatter(rootBuild.getDuration());
 
 		return buildTimeFormatter.toString();
 	}
@@ -97,7 +97,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	 * @return the tests result of a build of default type
 	 */
 	public String getTestResults() {
-		return getAggregatedTestResults(build);
+		return getAggregatedTestResults(rootBuild);
 	}
 
 	protected String getAggregatedTestResults(AbstractBuild build) {
@@ -160,9 +160,9 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	protected String printFailedTest(
 		CaseResult failedTest, AbstractTestResultAction testResultAction) {
 
-		AbstractBuild ownerBuild = failedTest.getOwner();
+		AbstractBuild build = failedTest.getOwner();
 
-		String baseUrl = Jenkins.getInstance().getRootUrl() + ownerBuild.getUrl();
+		String baseUrl = Jenkins.getInstance().getRootUrl() + build.getUrl();
 
 		StringBuilder sb = new StringBuilder();
 
@@ -197,7 +197,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 			return "";
 		}
 
-		String baseUrl = Jenkins.getInstance().getRootUrl() + build.getUrl();
+		String baseUrl = Jenkins.getInstance().getRootUrl() + rootBuild.getUrl();
 
 		sb.append("<h3>");
 		sb.append("<a name='");
@@ -229,7 +229,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	protected static final Logger LOGGER = Logger.getLogger(
 		GhprbBaseBuildManager.class.getName());
 
-	protected AbstractBuild build;
+	protected AbstractBuild rootBuild;
 
 	private static final int _MAX_LINES_COUNT = 25;
 
