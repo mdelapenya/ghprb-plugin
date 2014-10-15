@@ -1,17 +1,3 @@
-/**
- * Copyright (c) 2000-2014 Liferay, Inc. All rights reserved.
- *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- */
-
 package org.jenkinsci.plugins.ghprb;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -32,6 +18,9 @@ import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.UserRemoteConfig;
 import net.sf.json.JSONObject;
 
+/**
+ * @author mdelapenya (Manuel de la Peña)
+ */
 public class GhprbTestUtil {
 
 	public static final int INITIAL_RATE_LIMIT = 5000;
