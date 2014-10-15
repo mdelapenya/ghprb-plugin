@@ -64,7 +64,7 @@ public class BuildFlowBuildManager extends GhprbBaseBuildManager {
 	 */
 	@Override
 	public Iterator downstreamProjects() {
-		FlowRun flowRun = (FlowRun) build;
+		FlowRun flowRun = (FlowRun) rootBuild;
 
 		DirectedGraph directedGraph = flowRun.getJobsGraph();
 
