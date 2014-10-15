@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +15,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Result;
 import hudson.tasks.junit.TestResult;
 import hudson.tasks.junit.CaseResult;
+import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.AggregatedTestResultAction;
 import hudson.tasks.test.AggregatedTestResultAction.ChildReport;
 
@@ -101,8 +101,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	}
 
 	protected String getAggregatedTestResults(AbstractBuild build) {
-		AggregatedTestResultAction testResultAction =
-			build.getAction(AggregatedTestResultAction.class);
+		AbstractTestResultAction testResultAction = build.getTestResultAction();
 
 		if (testResultAction == null) {
 			return "";
@@ -134,62 +133,94 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 		sb.append(testResultAction.getFailCount());
 		sb.append("</span></h2>");
 
-		List<ChildReport> childReports = testResultAction.getChildReports();
+		AggregatedTestResultAction aggTestResultAction =
+			build.getAggregatedTestResultAction();
+
+		if (aggTestResultAction == null) {
+			sb.append(printTestResults(build.getProject(), testResultAction));
+
+			return sb.toString();
+		}
+
+		List<ChildReport> childReports = aggTestResultAction.getChildReports();
 
 		for (ChildReport report : childReports) {
 			TestResult result = (TestResult)report.result;
 
-			if (result.getFailCount() < 1) {
-				continue;
-			}
-
 			AbstractProject project =
 				(AbstractProject)report.child.getProject();
 
-			String baseUrl = Jenkins.getInstance().getRootUrl() + build.getUrl() +
-				project.getShortUrl() + "testReport";
-
-			sb.append("<h3>");
-			sb.append("<a name='");
-			sb.append(project.getName());
-			sb.append("' />");
-			sb.append("<a href='");
-			sb.append(baseUrl);
-			sb.append("'>");
-			sb.append(project.getName());
-			sb.append("</a>");
-			sb.append(": ");
-			sb.append("<span class='status-failure'>");
-			sb.append(result.getFailCount());
-			sb.append("</span></h3>");
-
-			sb.append("<ul>");
-
-			List<CaseResult> failedTests = result.getFailedTests();
-
-			for (CaseResult failedTest : failedTests) {
-				sb.append("<li>");
-				sb.append("<a href='");
-				sb.append(baseUrl);
-				sb.append("/");
-				sb.append(failedTest.getRelativePathFrom(result));
-				sb.append("'>");
-				sb.append("<strong>");
-				sb.append(failedTest.getFullDisplayName());
-				sb.append("</strong>");
-				sb.append("</a>");
-
-				if (getJobConfiguration().printStackTrace()) {
-					sb.append("\n```\n");
-					sb.append(failedTest.getErrorStackTrace());
-					sb.append("\n```\n");
-				}
-
-				sb.append("</li>");
-			}
-
-			sb.append("</ul>");
+			sb.append(
+				printTestResults(project, result.getTestResultAction()));
 		}
+
+		return sb.toString();
+	}
+
+	protected String printFailedTest(
+		CaseResult failedTest, AbstractTestResultAction testResultAction) {
+
+		AbstractBuild ownerBuild = testResultAction.owner;
+
+		String baseUrl = Jenkins.getInstance().getRootUrl() + ownerBuild.getUrl();
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("<li>");
+		sb.append("<a href='");
+		sb.append(baseUrl);
+		sb.append(failedTest.getUrl());
+		sb.append("'>");
+		sb.append("<strong>");
+		sb.append(failedTest.getFullDisplayName());
+		sb.append("</strong>");
+		sb.append("</a>");
+
+		if (getJobConfiguration().printStackTrace()) {
+			sb.append("\n```\n");
+			sb.append(failedTest.getErrorStackTrace());
+			sb.append("\n```\n");
+		}
+
+		sb.append("</li>");
+
+		return sb.toString();
+	}
+
+	protected String printTestResults(
+		AbstractProject project, AbstractTestResultAction testResultAction) {
+
+		StringBuilder sb = new StringBuilder();
+
+		if (testResultAction.getFailCount() < 1) {
+			return "";
+		}
+
+		String baseUrl = Jenkins.getInstance().getRootUrl() + build.getUrl();
+
+		sb.append("<h3>");
+		sb.append("<a name='");
+		sb.append(project.getName());
+		sb.append("' />");
+		sb.append("<a href='");
+		sb.append(baseUrl);
+		sb.append("'>");
+		sb.append(project.getName());
+		sb.append("</a>");
+		sb.append(": ");
+		sb.append("<span class='status-failure'>");
+		sb.append(testResultAction.getFailCount());
+		sb.append("</span></h3>");
+
+		sb.append("<ul>");
+
+		List<CaseResult> failedTests = testResultAction.getFailedTests();
+
+		for (CaseResult failedTest : failedTests) {
+			sb.append(printFailedTest(failedTest, testResultAction));
+		}
+
+		sb.append("</ul>");
 
 		return sb.toString();
 	}
