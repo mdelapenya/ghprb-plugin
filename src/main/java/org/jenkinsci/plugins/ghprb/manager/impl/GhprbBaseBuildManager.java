@@ -157,9 +157,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 		return sb.toString();
 	}
 
-	protected String printFailedTest(
-		CaseResult failedTest, AbstractTestResultAction testResultAction) {
-
+	protected String printFailedTest(CaseResult failedTest, String urlName) {
 		AbstractBuild build = failedTest.getOwner();
 
 		String baseUrl = Jenkins.getInstance().getRootUrl() + build.getUrl();
@@ -169,7 +167,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 		sb.append("<li>");
 		sb.append("<a href='");
 		sb.append(baseUrl);
-		sb.append(testResultAction.getUrlName());
+		sb.append(urlName);
 		sb.append(failedTest.getUrl());
 		sb.append("'>");
 		sb.append("<strong>");
@@ -218,7 +216,8 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 		List<CaseResult> failedTests = testResultAction.getFailedTests();
 
 		for (CaseResult failedTest : failedTests) {
-			sb.append(printFailedTest(failedTest, testResultAction));
+			sb.append(
+				printFailedTest(failedTest, testResultAction.getUrlName()));
 		}
 
 		sb.append("</ul>");
