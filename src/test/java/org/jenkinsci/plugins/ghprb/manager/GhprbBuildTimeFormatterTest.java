@@ -24,6 +24,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class GhprbBuildTimeFormatterTest {
 
 	@Test
+	public void testFailOnPurpose() {
+		assertThat(true).isFalse();
+	}
+
+	@Test
 	public void testConstructor() {
 		GhprbBuildTimeFormatter buildTimeFormatter =
 			new GhprbBuildTimeFormatter(1);
