@@ -7,8 +7,8 @@ import static org.mockito.Mockito.doReturn;
 
 import com.coravy.hudson.plugins.github.GithubProjectProperty;
 
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixProject;
+import hudson.model.FreeStyleBuild;
+import hudson.model.FreeStyleProject;
 
 import net.sf.json.JSONObject;
 
@@ -31,7 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * @author mdelapenya (Manuel de la Peña)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class GhprbDefaultBuildManagerTest extends GhprbITBaseTestCase {
+public class GhprbFreeStyleBuildManagerTest extends GhprbITBaseTestCase {
 
 	@Rule
 	public JenkinsRule jenkinsRule = new JenkinsRule();
@@ -42,26 +42,26 @@ public class GhprbDefaultBuildManagerTest extends GhprbITBaseTestCase {
 	}
 
 	@Test
-	public void shouldCalculateUrlFromDefault() throws Exception {
+	public void shouldCalculateUrlFromFreeStyleProject() throws Exception {
 		// GIVEN
-		MatrixProject project = givenThatGhprbHasBeenTriggeredForAMatrixProject();
+		FreeStyleProject project = givenThatGhprbHasBeenTriggeredForAFreeStyleProject();
 
 		// THEN
 		assertThat(project.getBuilds().toArray().length).isEqualTo(1);
 
-		MatrixBuild matrixBuild = project.getBuilds().getFirstBuild();
+		FreeStyleBuild freeStyleBuild = project.getBuilds().getLastBuild();
 
 		GhprbBuildManager buildManager =
-			GhprbBuildManagerFactoryUtil.getBuildManager(matrixBuild);
+			GhprbBuildManagerFactoryUtil.getBuildManager(freeStyleBuild);
 
 		assertThat(buildManager).isInstanceOf(GhprbDefaultBuildManager.class);
 
 		assertThat(buildManager.calculateBuildUrl()).isEqualTo(
-			"defaultPublishedURL/" + matrixBuild.getUrl());
+			"defaultPublishedURL/" + freeStyleBuild.getUrl());
 	}
 
-	private MatrixProject givenThatGhprbHasBeenTriggeredForAMatrixProject() throws Exception {
-		MatrixProject project = jenkinsRule.createMatrixProject("MTXPRJ");
+	private FreeStyleProject givenThatGhprbHasBeenTriggeredForAFreeStyleProject() throws Exception {
+		FreeStyleProject project = jenkinsRule.createFreeStyleProject("FSPRJ");
 
 		GhprbTrigger trigger = new GhprbTrigger("user", "user", "",
 			"*/1 * * * *", "retest this please", false, false, false, false,
