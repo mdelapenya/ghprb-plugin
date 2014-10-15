@@ -90,7 +90,7 @@ public class BuildFlowBuildManager extends GhprbBaseBuildManager {
 				AbstractBuild build = (AbstractBuild)jobInvocation.getBuild();
 
 				AggregatedTestResultAction testResultAction =
-					build.getAction(AggregatedTestResultAction.class);
+					build.getAggregatedTestResultAction();
 
 				if (testResultAction != null) {
 					sb.append("\n");
