@@ -21,6 +21,7 @@ import org.kohsuke.github.GHUser;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -221,6 +222,10 @@ public class GhprbBuilds {
             GhprbBuildManagerFactoryUtil.getBuildManager(build, jobConfiguration);
 
         StringBuilder sb = new StringBuilder();
+
+        sb.append("\nBuild Time: ");
+        sb.append(buildManager.getBuildTimeMessage());
+        sb.append("\n");
 
         sb.append(buildManager.calculateBuildUrl());
 
