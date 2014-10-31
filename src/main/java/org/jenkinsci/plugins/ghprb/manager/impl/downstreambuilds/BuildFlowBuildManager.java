@@ -64,7 +64,7 @@ public class BuildFlowBuildManager extends GhprbBaseBuildManager {
 	 */
 	@Override
 	public Iterator downstreamProjects() {
-		FlowRun flowRun = (FlowRun) build;
+		FlowRun flowRun = (FlowRun) rootBuild;
 
 		DirectedGraph directedGraph = flowRun.getJobsGraph();
 
@@ -90,7 +90,7 @@ public class BuildFlowBuildManager extends GhprbBaseBuildManager {
 				AbstractBuild build = (AbstractBuild)jobInvocation.getBuild();
 
 				AggregatedTestResultAction testResultAction =
-					build.getAction(AggregatedTestResultAction.class);
+					build.getAggregatedTestResultAction();
 
 				if (testResultAction != null) {
 					sb.append("\n");

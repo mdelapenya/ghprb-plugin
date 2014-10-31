@@ -1,16 +1,21 @@
 package org.jenkinsci.plugins.ghprb.manager.impl.downstreambuilds;
 
 import static org.fest.assertions.Assertions.assertThat;
-
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
+import hudson.model.BuildListener;
+import hudson.model.Result;
+import hudson.model.AbstractBuild;
+import hudson.tasks.junit.SuiteResult;
+import hudson.tasks.junit.TestResult;
+import hudson.tasks.junit.CaseResult;
+import hudson.tasks.test.AggregatedTestResultAction;
+import hudson.tasks.test.MatrixTestResult;
 
-import com.cloudbees.plugins.flow.BuildFlow;
-import com.cloudbees.plugins.flow.FlowRun;
-import com.cloudbees.plugins.flow.JobInvocation;
-import com.coravy.hudson.plugins.github.GithubProjectProperty;
-
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import net.sf.json.JSONObject;
 
@@ -21,13 +26,17 @@ import org.jenkinsci.plugins.ghprb.GhprbTrigger;
 import org.jenkinsci.plugins.ghprb.manager.GhprbBuildManager;
 import org.jenkinsci.plugins.ghprb.manager.factory.GhprbBuildManagerFactoryUtil;
 import org.jenkinsci.plugins.ghprb.rules.JenkinsRuleWithBuildFlow;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.cloudbees.plugins.flow.JobInvocation;
+import com.cloudbees.plugins.flow.BuildFlow;
+import com.cloudbees.plugins.flow.FlowRun;
+import com.coravy.hudson.plugins.github.GithubProjectProperty;
 
 /**
  * @author mdelapenya (Manuel de la Peña)
@@ -149,6 +158,50 @@ public class BuildFlowBuildManagerTest extends GhprbITBaseTestCase {
 		Thread.sleep(130000);
 
 		return buildFlowProject;
+	}
+
+	private void mockTests(BuildFlow buildFlowProject)
+		throws ExecutionException, InterruptedException {
+
+		FlowRun flowRun = buildFlowProject.getBuilds().getFirstBuild();
+
+		GhprbBuildManager buildManager =
+			GhprbBuildManagerFactoryUtil.getBuildManager(flowRun);
+
+		Iterator iterator = buildManager.downstreamProjects();
+
+		StringBuilder expectedUrl = new StringBuilder();
+
+		int count = 0;
+
+		while (iterator.hasNext()) {
+			Object downstreamBuild = iterator.next();
+
+			assertThat(downstreamBuild).isInstanceOf(JobInvocation.class);
+
+			JobInvocation jobInvocation = (JobInvocation)downstreamBuild;
+
+			AbstractBuild build = (AbstractBuild)jobInvocation.getBuild();
+
+			TestResult result = new TestResult();
+			BuildListener buildListener;
+
+			AggregatedTestResultAction testResultAction = new MatrixTestResult();
+
+			given(build.getTestResultAction()).willReturn(testResultAction);
+			given(build.getAggregatedTestResultAction()).willReturn(testResultAction);
+
+			given(build.getResult()).willReturn(Result.UNSTABLE);
+
+			List failedTests = new ArrayList<hudson.tasks.test.TestResult>();
+
+			SuiteResult parent = Mockito.any(SuiteResult.class);
+
+			failedTests.add(new CaseResult(parent, "testName", "errorStackTrace"));
+
+			given(testResultAction.getFailedTests()).willReturn(failedTests);
+			given(testResultAction.getFailCount()).willReturn(failedTests.size());
+		}
 	}
 
 }

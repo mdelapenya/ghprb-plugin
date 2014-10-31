@@ -15,12 +15,14 @@ import hudson.model.AbstractProject;
 import hudson.model.Result;
 import hudson.tasks.junit.TestResult;
 import hudson.tasks.junit.CaseResult;
+import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.AggregatedTestResultAction;
 import hudson.tasks.test.AggregatedTestResultAction.ChildReport;
 
 import org.jenkinsci.plugins.ghprb.GhprbTrigger;
 import org.jenkinsci.plugins.ghprb.manager.configuration.JobConfiguration;
 import org.jenkinsci.plugins.ghprb.manager.GhprbBuildManager;
+import org.jenkinsci.plugins.ghprb.manager.GhprbBuildTimeFormatter;
 
 /**
  * @author mdelapenya (Manuel de la Peña)
@@ -28,12 +30,12 @@ import org.jenkinsci.plugins.ghprb.manager.GhprbBuildManager;
 public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 
 	public GhprbBaseBuildManager(AbstractBuild build) {
-		this.build = build;
+		this.rootBuild = build;
 		this.jobConfiguration = buildDefaultConfiguration();
 	}
 
 	public GhprbBaseBuildManager(AbstractBuild build, JobConfiguration jobConfiguration) {
-		this.build = build;
+		this.rootBuild = build;
 		this.jobConfiguration = jobConfiguration;
 	}
 
@@ -52,7 +54,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	public String calculateBuildUrl() {
 		String publishedURL = GhprbTrigger.getDscp().getPublishedURL();
 
-		return publishedURL + "/" + build.getUrl();
+		return publishedURL + "/" + rootBuild.getUrl();
 	}
 
 	/**
@@ -67,9 +69,21 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	public Iterator downstreamProjects() {
 		List downstreamList = new ArrayList();
 
-		downstreamList.add(build);
+		downstreamList.add(rootBuild);
 
 		return downstreamList.iterator();
+	}
+
+	/**
+	 * Returns the formatted build time of a build
+	 * 
+	 * @return the build time as string
+	 */
+	public String getBuildTimeMessage() {
+		GhprbBuildTimeFormatter buildTimeFormatter =
+			new GhprbBuildTimeFormatter(rootBuild.getDuration());
+
+		return buildTimeFormatter.toString();
 	}
 
 	public JobConfiguration getJobConfiguration() {
@@ -83,12 +97,11 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	 * @return the tests result of a build of default type
 	 */
 	public String getTestResults() {
-		return getAggregatedTestResults(build);
+		return getAggregatedTestResults(rootBuild);
 	}
 
 	protected String getAggregatedTestResults(AbstractBuild build) {
-		AggregatedTestResultAction testResultAction =
-			build.getAction(AggregatedTestResultAction.class);
+		AbstractTestResultAction testResultAction = build.getTestResultAction();
 
 		if (testResultAction == null) {
 			return "";
@@ -120,62 +133,94 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 		sb.append(testResultAction.getFailCount());
 		sb.append("</span></h2>");
 
-		List<ChildReport> childReports = testResultAction.getChildReports();
+		AggregatedTestResultAction aggTestResultAction =
+			build.getAggregatedTestResultAction();
+
+		String projectName = build.getProject().getDisplayName();
+
+		if (aggTestResultAction == null) {
+			sb.append(
+				printTestResults(projectName, testResultAction));
+
+			return sb.toString();
+		}
+
+		List<ChildReport> childReports = aggTestResultAction.getChildReports();
 
 		for (ChildReport report : childReports) {
 			TestResult result = (TestResult)report.result;
 
-			if (result.getFailCount() < 1) {
-				continue;
-			}
-
-			AbstractProject project =
-				(AbstractProject)report.child.getProject();
-
-			String baseUrl = Jenkins.getInstance().getRootUrl() + build.getUrl() +
-				project.getShortUrl() + "testReport";
-
-			sb.append("<h3>");
-			sb.append("<a name='");
-			sb.append(project.getName());
-			sb.append("' />");
-			sb.append("<a href='");
-			sb.append(baseUrl);
-			sb.append("'>");
-			sb.append(project.getName());
-			sb.append("</a>");
-			sb.append(": ");
-			sb.append("<span class='status-failure'>");
-			sb.append(result.getFailCount());
-			sb.append("</span></h3>");
-
-			sb.append("<ul>");
-
-			List<CaseResult> failedTests = result.getFailedTests();
-
-			for (CaseResult failedTest : failedTests) {
-				sb.append("<li>");
-				sb.append("<a href='");
-				sb.append(baseUrl);
-				sb.append("/");
-				sb.append(failedTest.getRelativePathFrom(result));
-				sb.append("'>");
-				sb.append("<strong>");
-				sb.append(failedTest.getFullDisplayName());
-				sb.append("</strong>");
-				sb.append("</a>");
-
-				if (getJobConfiguration().printStackTrace()) {
-					sb.append("\n```\n");
-					sb.append(failedTest.getErrorStackTrace());
-					sb.append("\n```\n");
-				}
-
-				sb.append("</li>");
-			}
-
-			sb.append("</ul>");
+			sb.append(
+				printTestResults(projectName, result.getTestResultAction()));
 		}
+
+		return sb.toString();
+	}
+
+	protected String printFailedTest(CaseResult failedTest, String urlName) {
+		AbstractBuild build = failedTest.getOwner();
+
+		String baseUrl = Jenkins.getInstance().getRootUrl() + build.getUrl();
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("<li>");
+		sb.append("<a href='");
+		sb.append(baseUrl);
+		sb.append(urlName);
+		sb.append(failedTest.getUrl());
+		sb.append("'>");
+		sb.append("<strong>");
+		sb.append(failedTest.getFullDisplayName());
+		sb.append("</strong>");
+		sb.append("</a>");
+
+		if (getJobConfiguration().printStackTrace()) {
+			sb.append("\n```\n");
+			sb.append(failedTest.getErrorStackTrace());
+			sb.append("\n```\n");
+		}
+
+		sb.append("</li>");
+
+		return sb.toString();
+	}
+
+	protected String printTestResults(
+		String projectName, AbstractTestResultAction testResultAction) {
+
+		StringBuilder sb = new StringBuilder();
+
+		if (testResultAction.getFailCount() < 1) {
+			return "";
+		}
+
+		String baseUrl = Jenkins.getInstance().getRootUrl() + rootBuild.getUrl();
+
+		sb.append("<h3>");
+		sb.append("<a name='");
+		sb.append(projectName);
+		sb.append("' />");
+		sb.append("<a href='");
+		sb.append(baseUrl);
+		sb.append("'>");
+		sb.append(projectName);
+		sb.append("</a>");
+		sb.append(": ");
+		sb.append("<span class='status-failure'>");
+		sb.append(testResultAction.getFailCount());
+		sb.append("</span></h3>");
+
+		sb.append("<ul>");
+
+		List<CaseResult> failedTests = testResultAction.getFailedTests();
+
+		for (CaseResult failedTest : failedTests) {
+			sb.append(
+				printFailedTest(failedTest, testResultAction.getUrlName()));
+		}
+
+		sb.append("</ul>");
 
 		return sb.toString();
 	}
@@ -183,7 +228,7 @@ public abstract class GhprbBaseBuildManager implements GhprbBuildManager {
 	protected static final Logger LOGGER = Logger.getLogger(
 		GhprbBaseBuildManager.class.getName());
 
-	protected AbstractBuild build;
+	protected AbstractBuild rootBuild;
 
 	private static final int _MAX_LINES_COUNT = 25;
 
